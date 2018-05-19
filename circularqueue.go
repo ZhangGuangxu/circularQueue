@@ -6,23 +6,23 @@ const (
 	initSize = 32
 )
 
-// circularQueue allocate new memory when necessary.
-type circularQueue struct {
+// CircularQueue allocate new memory when necessary.
+type CircularQueue struct {
 	buffer []interface{}
 	readableIndex int
 	writableIndex int
 }
 
-// NewCircularQueue creates a circularQueue.
+// NewCircularQueue creates a CircularQueue.
 // Usually, you use this function.
-func NewCircularQueue() *circularQueue {
+func NewCircularQueue() *CircularQueue {
 	return NewCircularQueueWithSize(initSize)
 }
 
-// NewCircularQueueWithSize creates a circularQueue with 
+// NewCircularQueueWithSize creates a CircularQueue with 
 // a size you specified.
-func NewCircularQueueWithSize(s int) *circularQueue {
-	return &circularQueue{
+func NewCircularQueueWithSize(s int) *CircularQueue {
+	return &CircularQueue{
 		buffer: make([]interface{}, s),
 		readableIndex: 0,
 		writableIndex: 0,
@@ -30,7 +30,7 @@ func NewCircularQueueWithSize(s int) *circularQueue {
 }
 
 // Len returns item count.
-func (b *circularQueue) Len() int {
+func (b *CircularQueue) Len() int {
 	if b.IsEmpty() {
 		return 0
 	}
@@ -46,19 +46,19 @@ func (b *circularQueue) Len() int {
 
 // Push pushes a item into this queue.
 // Donot worry if this queue is full.
-func (b *circularQueue) Push(m interface{}) {
+func (b *CircularQueue) Push(m interface{}) {
 	b.ensureWritableSpace()
 	b.buffer[b.writableIndex] = m
 	b.hasWritten()
 }
 
-func (b *circularQueue) ensureWritableSpace() {
+func (b *CircularQueue) ensureWritableSpace() {
 	if b.isFull() {
 		b.makeSpace()
 	}
 }
 
-func (b *circularQueue) makeSpace() {
+func (b *CircularQueue) makeSpace() {
 	buf := make([]interface{}, 1+cap(b.buffer)*2)
 	if b.readableIndex < b.writableIndex {
 		length := b.writableIndex - b.readableIndex
@@ -78,7 +78,7 @@ func (b *circularQueue) makeSpace() {
 	b.buffer = buf
 }
 
-func (b *circularQueue) hasWritten() {
+func (b *CircularQueue) hasWritten() {
 	b.writableIndex++
 	if b.writableIndex >= len(b.buffer) {
 		if b.readableIndex > 0 {
@@ -88,20 +88,20 @@ func (b *circularQueue) hasWritten() {
 }
 
 // IsEmpty returns true if this queue if empty.
-func (b *circularQueue) IsEmpty() bool {
+func (b *CircularQueue) IsEmpty() bool {
 	return b.readableIndex == b.writableIndex
 }
 
-func (b *circularQueue) isFull() bool {
+func (b *CircularQueue) isFull() bool {
 	return (b.readableIndex == 0 && b.writableIndex == len(b.buffer)) || 
 			b.writableIndex+1 == b.readableIndex
 }
 
-func (b *circularQueue) peek() interface{} {
+func (b *CircularQueue) peek() interface{} {
 	return b.buffer[b.readableIndex]
 }
 
-func (b *circularQueue) retrieve() {
+func (b *CircularQueue) retrieve() {
 	b.readableIndex++
 	if b.writableIndex >= len(b.buffer) {
 		b.writableIndex = 0
@@ -112,9 +112,9 @@ func (b *circularQueue) retrieve() {
 }
 
 // Pop pops a item.
-func (b *circularQueue) Pop() (interface{}, error) {
+func (b *CircularQueue) Pop() (interface{}, error) {
 	if b.IsEmpty() {
-		return nil, errors.New("circularQueue is empty")
+		return nil, errors.New("CircularQueue is empty")
 	}
 	m := b.peek()
 	b.retrieve()
