@@ -29,6 +29,7 @@ func NewCircularQueueWithSize(s int) *circularQueue {
 	}
 }
 
+// Len returns item count.
 func (b *circularQueue) Len() int {
 	if b.IsEmpty() {
 		return 0
