@@ -98,6 +98,7 @@ func (b *CircularQueue) peek() interface{} {
 }
 
 func (b *CircularQueue) retrieve() {
+	b.buffer[b.readableIndex] = nil // GC could collect this item soon.
 	b.readableIndex++
 	if b.writableIndex >= len(b.buffer) {
 		b.writableIndex = 0
