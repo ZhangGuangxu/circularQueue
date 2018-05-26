@@ -19,6 +19,9 @@ func TestPush(t *testing.T) {
 	if q1.Len() != 0 {
 		t.Errorf("q1.Len() = %d, want %d", q1.Len(), 0)
 	}
+	if err := q1.Retrieve(); err != ErrEmptyQueue {
+		t.Error("Retrieve empty queue should return ErrEmptyQueue")
+	}
 
 	q := NewCircularQueueWithSize(2)
 	if !q.IsEmpty() {

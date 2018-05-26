@@ -122,10 +122,13 @@ func (b *CircularQueue) Retrieve() error {
 
 // Pop pops a item.
 func (b *CircularQueue) Pop() (interface{}, error) {
-	if b.IsEmpty() {
-		return nil, ErrEmptyQueue
+	m, err := b.Peek()
+	if err != nil {
+		return nil, err
 	}
-	m := b.Peek()
-	b.Retrieve()
+	err = b.Retrieve()
+	if err != nil {
+		return nil, err
+	}
 	return m, nil
 }
