@@ -6,6 +6,9 @@ const (
 	initSize = 32
 )
 
+// ErrEmptyQueue tells you a CircularQueue is empty.
+var ErrEmptyQueue = errors.New("CircularQueue is empty")
+
 // CircularQueue allocate new memory when necessary.
 type CircularQueue struct {
 	buffer        []interface{}
@@ -93,11 +96,19 @@ func (b *CircularQueue) isFull() bool {
 		b.writableIndex+1 == b.readableIndex
 }
 
-func (b *CircularQueue) peek() interface{} {
-	return b.buffer[b.readableIndex]
+// Peek peeks the first readable item in this queue. It does not modify this queue.
+func (b *CircularQueue) Peek() (interface{}, error) {
+	if b.IsEmpty() {
+		return nil, ErrEmptyQueue
+	}
+	return b.buffer[b.readableIndex], nil
 }
 
-func (b *CircularQueue) retrieve() {
+// Retrieve removes the first readable item in this queue.
+func (b *CircularQueue) Retrieve() error {
+	if b.IsEmpty() {
+		return ErrEmptyQueue
+	}
 	b.buffer[b.readableIndex] = nil // GC could collect this item soon.
 	b.readableIndex++
 	if b.writableIndex >= len(b.buffer) {
@@ -106,14 +117,15 @@ func (b *CircularQueue) retrieve() {
 	if b.readableIndex >= len(b.buffer) {
 		b.readableIndex = 0
 	}
+	return nil
 }
 
 // Pop pops a item.
 func (b *CircularQueue) Pop() (interface{}, error) {
 	if b.IsEmpty() {
-		return nil, errors.New("CircularQueue is empty")
+		return nil, ErrEmptyQueue
 	}
-	m := b.peek()
-	b.retrieve()
+	m := b.Peek()
+	b.Retrieve()
 	return m, nil
 }
