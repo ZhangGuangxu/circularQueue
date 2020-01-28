@@ -90,7 +90,10 @@ func TestPush(t *testing.T) {
 		q.Push(m)
 		q.Push(m)
 		q.Push(m)
-		q.Pop()
+		_, err := q.Pop()
+		if err != nil {
+			t.Fatalf("Pop error %v", err)
+		}
 		q.Push(m)
 		if q.writableIndex != 0 || q.readableIndex != 1 {
 			t.Error("index is wrong")
@@ -140,7 +143,10 @@ func TestPop(t *testing.T) {
 		q.Push(m)
 	}
 
-	q.Pop()
+	_, err = q.Pop()
+	if err != nil {
+		t.Fatalf("Pop error %v", err)
+	}
 	if q.readableIndex != 1 {
 		t.Error("q.readableIndex != 1")
 	}
@@ -151,7 +157,10 @@ func TestPop(t *testing.T) {
 		t.Errorf("q.isFull() = %v, want %v", q.isFull(), true)
 	}
 
-	q.Pop()
+	_, err = q.Pop()
+	if err != nil {
+		t.Fatalf("Pop error %v", err)
+	}
 	if !q.IsEmpty() {
 		t.Errorf("q.IsEmpty() = %v, want %v", q.IsEmpty(), true)
 	}
@@ -160,5 +169,53 @@ func TestPop(t *testing.T) {
 	}
 	if q.writableIndex != 0 {
 		t.Error("q.writableIndex != 0")
+	}
+}
+
+func BenchmarkPush(b *testing.B) {
+	b.ReportAllocs()
+	q := NewCircularQueue()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		q.Push(i)
+	}
+}
+
+func BenchmarkPushWithSizeQueue(b *testing.B) {
+	b.ReportAllocs()
+	q := NewCircularQueueWithSize(b.N)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		q.Push(i)
+	}
+}
+
+func BenchmarkPushAndPop(b *testing.B) {
+	b.ReportAllocs()
+	q := NewCircularQueue()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		q.Push(i)
+	}
+	for i := 0; i < b.N; i++ {
+		_, err := q.Pop()
+		if err != nil {
+			b.Fatalf("Pop error %v", err)
+		}
+	}
+}
+
+func BenchmarkPushAndPopWithSizeQueue(b *testing.B) {
+	b.ReportAllocs()
+	q := NewCircularQueueWithSize(b.N)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		q.Push(i)
+	}
+	for i := 0; i < b.N; i++ {
+		_, err := q.Pop()
+		if err != nil {
+			b.Fatalf("Pop error %v", err)
+		}
 	}
 }
